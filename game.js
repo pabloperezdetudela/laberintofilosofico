@@ -259,6 +259,7 @@ const state = {
   totalTime: 0,
   levelStartTime: 0,
   running: false,
+  answeredLog: [],  // historial para el repaso final
 
   maze: [],
   doors: [],     // {col, row, locked, questionIdx, open}
@@ -589,6 +590,9 @@ function openQuestionModal(door) {
   $('question-text').textContent = q.question;
   $('question-feedback').classList.add('hidden');
   $('btn-continue').classList.add('hidden');
+  const resultBanner = $('answer-result');
+  resultBanner.classList.add('hidden');
+  resultBanner.className = 'answer-result hidden';
 
   const opts = $('question-options');
   opts.innerHTML = '';
@@ -607,6 +611,10 @@ function openQuestionModal(door) {
   $('modal-question').classList.remove('hidden');
 }
 
+function updateHUDScore() {
+  $('hud-score').textContent = `${state.correctAnswers} / ${state.questionsAnswered} ✓`;
+}
+
 function handleAnswer(opt, q, clickedBtn, allOpts) {
   if (questionAnswered) return;
   questionAnswered = true;
@@ -615,20 +623,38 @@ function handleAnswer(opt, q, clickedBtn, allOpts) {
   const btns = document.querySelectorAll('.option-btn');
   btns.forEach(b => b.disabled = true);
 
+  const correctOption = allOpts.find(o => o.correct);
+  const resultBanner = $('answer-result');
+
   if (opt.correct) {
     clickedBtn.classList.add('correct');
     state.correctAnswers++;
     $('question-feedback').textContent = q.feedback;
+    resultBanner.textContent = '✓ ¡CORRECTO!';
+    resultBanner.className = 'answer-result is-correct';
   } else {
     clickedBtn.classList.add('incorrect');
     // Reveal correct
-    const correctText = allOpts.find(o => o.correct).text;
     btns.forEach(b => {
-      if (b.textContent === correctText) b.classList.add('reveal');
+      if (b.textContent === correctOption.text) b.classList.add('reveal');
     });
     $('question-feedback').textContent = q.feedbackWrong + ' ' + q.feedback;
+    resultBanner.textContent = '✗ INCORRECTO';
+    resultBanner.className = 'answer-result is-incorrect';
   }
 
+  // Guardar en el historial para el repaso final
+  state.answeredLog.push({
+    philosopher: q.philosopher,
+    emoji: q.emoji,
+    question: q.question,
+    chosenText: opt.text,
+    correctText: correctOption.text,
+    wasCorrect: opt.correct,
+    level: LEVELS[state.currentLevel].name,
+  });
+
+  updateHUDScore();
   $('question-feedback').classList.remove('hidden');
   $('btn-continue').classList.remove('hidden');
 }
@@ -745,6 +771,30 @@ function showEndScreen() {
 
   $('end-quote').innerHTML = `"Solo sé que no sé nada." <cite>— Sócrates</cite>`;
 
+  // Repaso de preguntas
+  const reviewEl = $('end-review');
+  if (state.answeredLog.length > 0) {
+    const items = state.answeredLog.map(entry => {
+      const cls = entry.wasCorrect ? 'ok' : 'ko';
+      const icon = entry.wasCorrect ? '✓' : '✗';
+      const chosenLine = entry.wasCorrect
+        ? `<span class="chosen correct-ans">${entry.chosenText}</span>`
+        : `Tu respuesta: <span class="chosen">${entry.chosenText}</span> &nbsp;·&nbsp; Correcta: <span class="correct-ans">${entry.correctText}</span>`;
+      return `
+        <div class="review-item ${cls}">
+          <span class="review-icon">${icon}</span>
+          <div class="review-body">
+            <div class="review-philosopher">${entry.emoji} ${entry.philosopher} — ${entry.level}</div>
+            <div class="review-question">${entry.question}</div>
+            <div class="review-answer">${chosenLine}</div>
+          </div>
+        </div>`;
+    }).join('');
+    reviewEl.innerHTML = `<h3>Repaso de preguntas</h3>${items}`;
+  } else {
+    reviewEl.innerHTML = '';
+  }
+
   showScreen('screen-end');
 }
 
@@ -752,6 +802,8 @@ $('btn-restart').addEventListener('click', () => {
   state.questionsAnswered = 0;
   state.correctAnswers = 0;
   state.totalTime = 0;
+  state.answeredLog = [];
+  updateHUDScore();
   showScreen('screen-intro');
 });
 
