@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>La Caverna — Un Laberinto Filosófico</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- PANTALLA DE INICIO -->
+  <div id="screen-intro" class="screen active">
+    <div class="intro-content">
+      <h1 class="title">La Caverna</h1>
+      <p class="subtitle">Un laberinto filosófico</p>
+      <blockquote>
+        "La ignorancia es la raíz de todos los males."
+        <cite>— Platón</cite>
+      </blockquote>
+      <p class="intro-text">
+        Estás encadenado en una caverna. Solo ves sombras.<br />
+        Para escapar deberás atravesar cuatro capas de la realidad.<br />
+        Cada puerta te hará una pregunta. Tu respuesta abrirá el camino.
+      </p>
+      <button id="btn-start" class="btn-primary">Despertar</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA DE JUEGO -->
+  <div id="screen-game" class="screen">
+    <div id="hud">
+      <div id="hud-level">
+        <span id="level-name">Nivel I — Las Sombras</span>
+      </div>
+      <div id="hud-keys">
+        <span>WASD / ↑↓←→ para moverse</span>
+      </div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <div id="level-desc"></div>
+  </div>
+
+  <!-- MODAL DE PREGUNTA FILOSÓFICA -->
+  <div id="modal-question" class="modal hidden">
+    <div class="modal-box">
+      <div class="modal-philosopher">
+        <img id="philosopher-icon" src="" alt="" />
+        <span id="philosopher-name"></span>
+      </div>
+      <p id="question-text"></p>
+      <div id="question-options"></div>
+      <p id="question-feedback" class="feedback hidden"></p>
+      <button id="btn-continue" class="btn-primary hidden">Continuar</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA DE NIVEL COMPLETADO -->
+  <div id="screen-level-complete" class="screen hidden">
+    <div class="intro-content">
+      <h2 id="level-complete-title"></h2>
+      <p id="level-complete-quote"></p>
+      <p id="level-complete-desc"></p>
+      <button id="btn-next-level" class="btn-primary">Siguiente capa</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA FINAL -->
+  <div id="screen-end" class="screen hidden">
+    <div class="intro-content end-content">
+      <h2>Has salido de la caverna.</h2>
+      <div id="end-story"></div>
+      <div id="end-stats"></div>
+      <blockquote id="end-quote"></blockquote>
+      <button id="btn-restart" class="btn-primary">Volver a las sombras</button>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

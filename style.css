@@ -1,0 +1,394 @@
+/* =====================================================
+   LA CAVERNA — Laberinto Filosófico
+   Paleta: oscura con transiciones de luz por nivel
+   ===================================================== */
+
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --border: #2a2a3a;
+  --text: #c8c8d8;
+  --text-dim: #6a6a8a;
+  --accent: #7c5cbf;
+  --accent-light: #a880f0;
+  --gold: #c9a84c;
+  --gold-light: #f0d070;
+  --danger: #bf3a3a;
+  --success: #3abf6a;
+
+  /* Level color themes */
+  --level-color: #7c5cbf;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Georgia', serif;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── SCREENS ── */
+
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease;
+}
+
+.screen.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.screen.hidden {
+  display: none;
+}
+
+/* ── INTRO ── */
+
+.intro-content {
+  text-align: center;
+  max-width: 600px;
+  padding: 2rem;
+  animation: fadeUp 1.2s ease forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.title {
+  font-size: 4rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--gold-light);
+  text-shadow: 0 0 40px rgba(201,168,76,0.4);
+  margin-bottom: 0.3rem;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
+blockquote {
+  border-left: 2px solid var(--gold);
+  padding: 0.8rem 1.2rem;
+  margin: 1.5rem auto;
+  text-align: left;
+  color: var(--text-dim);
+  font-style: italic;
+  max-width: 420px;
+}
+
+blockquote cite {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--gold);
+  font-style: normal;
+}
+
+.intro-text {
+  color: var(--text);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+/* ── BUTTONS ── */
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  color: #fff;
+  border: none;
+  padding: 0.8rem 2.5rem;
+  font-size: 1rem;
+  font-family: inherit;
+  letter-spacing: 0.15em;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.25s;
+  text-transform: uppercase;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(124,92,191,0.5);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ── HUD ── */
+
+#hud {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1.2rem;
+  background: rgba(10,10,15,0.85);
+  border-bottom: 1px solid var(--border);
+  z-index: 10;
+  font-size: 0.85rem;
+}
+
+#level-name {
+  color: var(--level-color);
+  font-weight: bold;
+  letter-spacing: 0.1em;
+}
+
+#hud-keys {
+  color: var(--text-dim);
+  font-size: 0.75rem;
+}
+
+/* ── CANVAS ── */
+
+#canvas {
+  display: block;
+  margin-top: 38px;
+}
+
+/* ── LEVEL DESCRIPTION ── */
+
+#level-desc {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 0.5rem;
+  background: rgba(10,10,15,0.85);
+  border-top: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  font-style: italic;
+  z-index: 10;
+}
+
+/* ── MODAL ── */
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(4px);
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 3px solid var(--level-color);
+  padding: 2rem;
+  max-width: 540px;
+  width: 90%;
+  border-radius: 4px;
+  animation: modalIn 0.3s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.modal-philosopher {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.philosopher-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+#philosopher-name {
+  color: var(--gold);
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+}
+
+#question-text {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+  color: var(--text);
+}
+
+#question-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.option-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.7rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  border-radius: 2px;
+  transition: all 0.2s;
+  line-height: 1.4;
+}
+
+.option-btn:hover {
+  background: rgba(124,92,191,0.15);
+  border-color: var(--accent);
+  color: var(--accent-light);
+}
+
+.option-btn.correct {
+  background: rgba(58,191,106,0.15);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.option-btn.incorrect {
+  background: rgba(191,58,58,0.1);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.option-btn.reveal {
+  background: rgba(58,191,106,0.08);
+  border-color: rgba(58,191,106,0.4);
+  color: var(--success);
+}
+
+.option-btn:disabled {
+  cursor: default;
+}
+
+.feedback {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--text-dim);
+  border-left: 2px solid var(--level-color);
+}
+
+.feedback.hidden {
+  display: none;
+}
+
+/* ── LEVEL COMPLETE ── */
+
+#screen-level-complete .intro-content h2 {
+  font-size: 2rem;
+  color: var(--gold-light);
+  margin-bottom: 1rem;
+}
+
+#level-complete-quote {
+  font-style: italic;
+  color: var(--gold);
+  margin: 1rem 0;
+  font-size: 1.1rem;
+}
+
+#level-complete-desc {
+  color: var(--text);
+  line-height: 1.8;
+  margin-bottom: 2rem;
+}
+
+/* ── END SCREEN ── */
+
+.end-content h2 {
+  font-size: 2.5rem;
+  color: var(--gold-light);
+  text-shadow: 0 0 30px rgba(201,168,76,0.5);
+  margin-bottom: 1.5rem;
+}
+
+#end-story {
+  color: var(--text);
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+#end-stats {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.stat-box {
+  text-align: center;
+  padding: 0.8rem 1.5rem;
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--gold);
+}
+
+.stat-value {
+  font-size: 2rem;
+  color: var(--gold-light);
+  display: block;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ── RESPONSIVE ── */
+
+@media (max-width: 600px) {
+  .title { font-size: 2.5rem; }
+  .modal-box { padding: 1.2rem; }
+}
